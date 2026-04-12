@@ -25,10 +25,61 @@ export const registerUser=async (req,res)=>{
         await sendEmail({
     to:userExist.email,
     subject:"Verify your Email",
-    html: `
-  <h2>Welcome to Ecomora 🚀</h2>
-  <p>Click below to verify your email:</p>
-  <a href="${url}">Verify Email</a>
+   html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
+    
+    <table align="center" width="100%" style="max-width:600px; background:white; margin-top:40px; border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.1);">
+      
+      <tr>
+        <td style="background:#0d6efd; padding:20px; text-align:center; color:white;">
+          <h1 style="margin:0;">Ecomora 🚀</h1>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:30px; text-align:center;">
+          <h2 style="margin-bottom:10px;">Welcome to Ecomora</h2>
+          <p style="color:#555; font-size:16px;">
+            Please verify your email to activate your account.
+          </p>
+
+          <a href="${url}" 
+             style="
+               display:inline-block;
+               margin-top:20px;
+               padding:12px 25px;
+               background:#0d6efd;
+               color:white;
+               text-decoration:none;
+               border-radius:5px;
+               font-size:16px;
+               font-weight:bold;
+             ">
+             Verify Email
+          </a>
+
+          <p style="margin-top:25px; font-size:14px; color:#888;">
+            If the button doesn't work, copy and paste this link:
+          </p>
+
+          <p style="word-break:break-all; color:#0d6efd;">
+            ${url}
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="background:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#888;">
+          © 2026 Ecomora. All rights reserved.
+        </td>
+      </tr>
+
+    </table>
+
+  </body>
+</html>
 `
 })
 return res.json({success:true,message:"Verification email resent"})
@@ -42,10 +93,61 @@ console.log(email)
 await sendEmail({
     to:email,
     subject:"Verify your Email",
-    html: `
-  <h2>Welcome to Ecomora 🚀</h2>
-  <p>Click below to verify your email:</p>
-  <a href="${url}">Verify Email</a>
+   html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
+    
+    <table align="center" width="100%" style="max-width:600px; background:white; margin-top:40px; border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.1);">
+      
+      <tr>
+        <td style="background:#0d6efd; padding:20px; text-align:center; color:white;">
+          <h1 style="margin:0;">Ecomora 🚀</h1>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:30px; text-align:center;">
+          <h2 style="margin-bottom:10px;">Welcome to Ecomora</h2>
+          <p style="color:#555; font-size:16px;">
+            Please verify your email to activate your account.
+          </p>
+
+          <a href="${url}" 
+             style="
+               display:inline-block;
+               margin-top:20px;
+               padding:12px 25px;
+               background:#0d6efd;
+               color:white;
+               text-decoration:none;
+               border-radius:5px;
+               font-size:16px;
+               font-weight:bold;
+             ">
+             Verify Email
+          </a>
+
+          <p style="margin-top:25px; font-size:14px; color:#888;">
+            If the button doesn't work, copy and paste this link:
+          </p>
+
+          <p style="word-break:break-all; color:#0d6efd;">
+            ${url}
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="background:#f1f1f1; padding:15px; text-align:center; font-size:12px; color:#888;">
+          © 2026 Ecomora. All rights reserved.
+        </td>
+      </tr>
+
+    </table>
+
+  </body>
+</html>
 `
 })
 
