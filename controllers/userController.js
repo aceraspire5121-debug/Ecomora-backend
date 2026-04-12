@@ -21,7 +21,7 @@ export const registerUser=async (req,res)=>{
         userExist.name=name;
          await userExist.save() 
         const token=generateEmailToken(userExist._id)
-        const url=`http://localhost:3000/api/email/verify/${token}`;
+        const url=`${process.env.BASE_URL}/api/email/verify/${token}`;
         await sendEmail({
     to:userExist.email,
     subject:"Verify your Email",
@@ -37,7 +37,7 @@ return res.json({success:true,message:"Verification email resent"})
 const hashedPassword=await bcrypt.hash(password,10)
 const newUser=await User.create({name,email,phoneNumber,password:hashedPassword})
 const token=generateEmailToken(newUser._id)
-const url=`http://localhost:3000/api/email/verify/${token}`;
+const url=`${process.env.BASE_URL}/api/email/verify/${token}`;
 console.log(email)
 await sendEmail({
     to:email,
