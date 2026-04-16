@@ -289,3 +289,60 @@ res.status(200).json({success:true,message:"If an account exists, a reset link h
  res.status(500).json({success:false,message:err.message})
   }
 }
+
+export const updatePassword = async (req, res) => {
+  try {
+    const token = req.params.token;
+    const password = req.body.password;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Token not found"
+      });
+    }
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters"
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token"
+      });
+    }
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Password has been updated"
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};

@@ -8,7 +8,7 @@ import cartRoutes from "./routes/cartRoutes.js"
 import emailRoutes from "./routes/emailRoutes.js"
 const app = express()
 app.use(cors());
-app.use(express.json())
+app.use(express.json()) // it converts the stringified object back into usable object, it is a built-in middleware
 const port = process.env.PORT || 3000; // render apna khud ka ek port deta hai jo ki process.env.PORT me aa jata hai
 
 
@@ -25,6 +25,7 @@ app.use("/api/products",productRoutes)
 app.use("/api/cart",cartRoutes)
 app.use("/api/email",emailRoutes)
 app.use("/api/reset",emailRoutes)
+app.use("/api/reset-password",emailRoutes)
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
