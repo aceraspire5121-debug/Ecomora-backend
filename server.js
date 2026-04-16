@@ -24,6 +24,7 @@ app.use("/api/users",userRoutes)
 app.use("/api/products",productRoutes)
 app.use("/api/cart",cartRoutes)
 app.use("/api/email",emailRoutes)
+app.use("/api/reset",emailRoutes)
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
