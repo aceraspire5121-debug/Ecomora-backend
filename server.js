@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js"
 import productRoutes from "./routes/productRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import emailRoutes from "./routes/emailRoutes.js"
+import paymentsRoutes from "./routes/paymentsRoutes.js"
 const app = express()
 app.use(cors());
 app.use(express.json()) // it converts the stringified object back into usable object, it is a built-in middleware
@@ -26,6 +27,7 @@ app.use("/api/cart",cartRoutes)
 app.use("/api/email",emailRoutes)
 app.use("/api/reset",emailRoutes)
 app.use("/api/reset-password",emailRoutes)
+app.use("/api/payment-start",paymentsRoutes)
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
