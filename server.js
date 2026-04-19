@@ -27,7 +27,7 @@ app.use("/api/cart",cartRoutes)
 app.use("/api/email",emailRoutes)
 app.use("/api/reset",emailRoutes)
 app.use("/api/reset-password",emailRoutes)
-app.use("/api/payment-start",paymentsRoutes)
+app.use("/api/payments",paymentsRoutes)
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })

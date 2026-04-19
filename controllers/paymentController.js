@@ -2,6 +2,7 @@ import { Cart } from "../models/CartModel.js";
 import Razorpay from "razorpay"
 import { Product } from "../models/productModel.js";
 import { Order } from "../models/orderModel.js";
+import crypto from "crypto";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -70,4 +71,61 @@ export const orderCreate=async (req,res)=>{
         console.log("Error is ",error)
         return res.status(500).json({success:false,message:error.message})
     }
+}
+
+export const verifyPayment=async (req,res)=>{
+    try {
+        const id=req.user.id;
+
+        const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
+
+    const body = razorpay_order_id + "|" + razorpay_payment_id; // ek string banayi us format ka use karke jo razorpay karta hai signature banane ke liye
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body) // string ko as a input pass kar dia
+      .digest("hex"); // final output nikal rahe ho
+
+      if(expectedSignature!==razorpay_signature)
+      {
+        return res.status(400).json({success:false,message:"Invalid signature"})
+      }
+      const order=await Order.findOne({orderId:razorpay_order_id}) // kyoki agar user se dhundoge to user to kitne bhi order place kar skta hai aur sabhi orders me uski userid same rahegi to kaha par status update karna hai ye tumhe best orderId se hi pata lagega jo ki unique hoga
+      if(!order)
+      {
+        return res.status(404).json({success:false,message:"Order not found"})
+      }
+
+          // 🔐 User match check 
+    if (order.user.toString() !== id) { // validation that the order userid and the token userid same hai agar hai to sahi user hai barna unauthorised userhai
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+      order.status="paid"
+      order.paymentId=razorpay_payment_id;
+      order.paidAt=new Date()
+      await order.save()
+
+      await Cart.findOneAndUpdate({user:id},{$set:{items:[]}})
+
+      res.json({
+      success: true,
+      message: "Payment verified successfully",
+    });
+    
+    } catch (error) {
+        console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+    }
+
 }
