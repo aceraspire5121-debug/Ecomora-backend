@@ -42,7 +42,7 @@ export const orderCreate=async (req,res)=>{
                 name:pro.name,
                 price:pro.price,
                 quantity:i.quantity,
-                image:pro.images?.[0]||""
+                image: pro.images?.[0]?.url || ""  //images "{\n  url: 'https://res.cloudinary.com/dzrzk86mu/image/upload/v1775662731/products/1775662730427-iphone.jpg.jpg',\n  public_id: 'products/1775662730427-iphone.jpg',\n  _id: n
             }
         }
      ) 
@@ -118,6 +118,7 @@ export const verifyPayment=async (req,res)=>{
       res.json({
       success: true,
       message: "Payment verified successfully",
+      order
     });
     
     } catch (error) {
@@ -128,4 +129,17 @@ export const verifyPayment=async (req,res)=>{
     });
     }
 
+}
+
+export const getOrder=async (req,res)=>{
+   try {
+    const orderid=req.params.id;
+    const userid=req.user.id;
+    const order=await Order.findOne({_id:orderid,user:userid})
+    if(!order)
+        return res.status(400).json({success:false,message:"Order does not exist"})
+    res.status(200).json({success:true,message:"Order found",order})
+   } catch (error) {
+    return res.status(500).json({success:false,message:error.message})
+   }
 }
