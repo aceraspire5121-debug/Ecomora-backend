@@ -94,11 +94,20 @@ export const verifyPayment=async (req,res)=>{
       {
         return res.status(400).json({success:false,message:"Invalid signature"})
       }
-      const order=await Order.findOne({orderId:razorpay_order_id}) // kyoki agar user se dhundoge to user to kitne bhi order place kar skta hai aur sabhi orders me uski userid same rahegi to kaha par status update karna hai ye tumhe best orderId se hi pata lagega jo ki unique hoga
-      if(!order)
-      {
-        return res.status(404).json({success:false,message:"Order not found"})
-      }
+     let order = null;
+
+for (let i = 0; i < 3; i++) {
+  order = await Order.findOne({ orderId: razorpay_order_id });
+  if (order) break;
+  await new Promise(r => setTimeout(r, 500)); // wait 0.5 sec
+}
+
+if (!order) {
+  return res.status(404).json({
+    success: false,
+    message: "Order not found"
+  });
+}
 
           // 🔐 User match check 
     if (order.user.toString() !== id) { // validation that the order userid and the token userid same hai agar hai to sahi user hai barna unauthorised userhai
