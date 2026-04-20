@@ -97,7 +97,7 @@ export const verifyPayment=async (req,res)=>{
      let order = null;
 
 for (let i = 0; i < 3; i++) {
-  order = await Order.findOne({ orderId: razorpay_order_id });
+  order = await Order.findOne({ orderId: razorpay_order_id })
   if (order) break;
   await new Promise(r => setTimeout(r, 500)); // wait 0.5 sec
 }
