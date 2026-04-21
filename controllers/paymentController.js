@@ -152,3 +152,15 @@ export const getOrder=async (req,res)=>{
     return res.status(500).json({success:false,message:error.message})
    }
 }
+
+export const getAllOrder=async (req,res)=>{
+   try {
+    const userid=req.user.id;
+    const order=await Order.find({user:userid}) // find returns an array
+    if(order.length===0)
+        return res.status(400).json({success:false,message:"Order does not exist"})
+    res.status(200).json({success:true,message:"Order found",order})
+   } catch (error) {
+    return res.status(500).json({success:false,message:error.message})
+   }
+}

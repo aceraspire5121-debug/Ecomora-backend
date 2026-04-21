@@ -1,6 +1,7 @@
 import express from "express"
 import { verifyToken } from "../middleware/verifyToken.js";
-import { getOrder } from "../controllers/paymentController.js";
+import { getAllOrder, getOrder } from "../controllers/paymentController.js";
 const router=express.Router();
+router.get("/getOrders",verifyToken,getAllOrder) // always put constant bala uper and params bala neeche
 router.get("/:id",verifyToken,getOrder)
 export default router;
