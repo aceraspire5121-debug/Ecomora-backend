@@ -14,10 +14,18 @@ try {
          User.find().sort({createdAt:-1}).limit(6),
          
     ])
-    for (const user of recentUsers) {
-        
-    }
-    res.status(200).json({success:true,totalOrders,totalUsers,recentOrders,lowStock,lowStockCount})
+   const recent=await Promise.all(
+    recentUsers.map(async (user)=>{ // async function returns a promise, and map returns the array so overall we get the array of promises hence we wait for resolving it
+     const orders=await Order.find({user:user._id})
+     return {
+        user:user,
+        order:orders,
+        count:orders.length,
+        amount:orders.reduce((s,i)=>s+i.amount,0)
+     }
+    })
+   )
+    res.status(200).json({success:true,totalOrders,totalUsers,recentOrders,lowStock,lowStockCount,recent})
 
 } catch (error) {
     console.log(error)
