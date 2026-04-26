@@ -175,7 +175,7 @@ const token=jwt.sign({id:userExist._id,role:userExist.role},process.env.JWT_SECR
 res.status(200).json({success:true,token,user:{
       id:userExist._id,
       name:userExist.name,
-      email:userExist.email,fb,mdbfdjfbd,mfbdfjdfb
+      email:userExist.email,
       role:userExist.role
    }})
     }catch(error)
