@@ -11,7 +11,9 @@ export const addToCart = async (req, res) => {
         console.log(quantity)
         const product = await Product.findById(productId)
         if (!product)
-            return res.status(404).json({ success: false, message: "Product not found" })
+            return res.status(404).json({ success: false, message: "Sorry,Out of Stock" })
+        if(product.stock<=0)
+            return res.status(400).json({success:false,message:"Out of Stock"})
         let cart = await Cart.findOne({ user: id })
         if (!cart) {
             cart = await Cart.create({ user: id, items: [{ product: productId, quantity: quantity }] })
