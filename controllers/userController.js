@@ -166,11 +166,11 @@ export const loginUser=async (req,res)=>{
 const userExist=await User.findOne({email})
 if(!userExist)
    return res.status(400).json({success:false,message:"No Account found"})
-if(userExist.isVerified===false)
-    return res.status(401).json({success:false,message:"Please verify your email first"})
-const checkedPassword=await bcrypt.compare(password,userExist.password)
+  const checkedPassword=await bcrypt.compare(password,userExist.password)
 if(!checkedPassword)
   return res.status(400).json({success:false,message:"Password is incorrect"})
+if(userExist.isVerified===false)
+    return res.status(401).json({success:false,message:"Please verify your email first"})
 const token=jwt.sign({id:userExist._id,role:userExist.role},process.env.JWT_SECRET,{expiresIn:"1d"})
 res.status(200).json({success:true,token,user:{
       id:userExist._id,
