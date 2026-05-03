@@ -1,0 +1,50 @@
+import { User } from "../models/userModel.js"
+
+export const getAllCustomers=async (req,res)=>{
+  try {
+    const totalcustomers=await User.aggregate([
+        {$match:{role:"user"}}, // first pipeline
+        {$lookup:{
+            from:"orders", // kaha se data lana hai, orders collection se lana hai
+            localField:"_id", // current collection me jodega User._id
+            foreignField:"user", // doosri collection jo orders di hai uska Order me convert karke Order.user ko check karega
+            as:"userOrders" //is field ke name se add karega jab bhi User._id==Order.user ke
+        }},
+        {
+            $addFields:{
+                totalOrders:{$size:"$userOrders"}, // $ use hota hai field access karne ke liye
+                totalSpent:{$sum:"$userOrders.amount"},
+                lastActivity:{$max:"$userOrders.createdAt"},
+                status:{
+                    $cond:[
+                        {$eq:["$isVerified",true]}, // $ lagate hai ham field accesss karne ke liye
+                        "Active",
+                        "Inactive"
+                    ]
+                }
+            }
+        },
+         // 4️⃣ Handle users with no orders
+         {
+            $addFields:{
+                totalSpent:{$ifNull:["$totalSpent",0]},
+                lastActivity:{$ifNull:["$lastActivity","$createdAt"]}
+            }
+         },
+         {
+            $project:{
+                password:0,
+                userOrders:0,
+                __v:0
+            }
+         },
+         {
+            $sort:{createdAt:-1}
+         }
+
+    ])
+    res.json({success:true,totalcustomers})
+  } catch (error) {
+    res.status(500).json({success:false,message:error.message})
+  }
+}

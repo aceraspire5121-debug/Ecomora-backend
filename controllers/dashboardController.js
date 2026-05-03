@@ -7,11 +7,11 @@ try {
     
     const [totalOrders,totalUsers,recentOrders,lowStock,lowStockCount,recentUsers]=await Promise.all([
          Order.countDocuments(),
-         User.countDocuments(),
+         User.countDocuments({role:"user"}),
          Order.find().sort({createdAt:-1}).limit(5).populate("user"),
          Product.find({stock:{$lt:5}}).limit(5),
          Product.countDocuments({stock:{$lt:5}}),
-         User.find().sort({createdAt:-1}).limit(6),
+         User.find({role:"user"}).sort({createdAt:-1}).limit(6),
          
     ])
    const recent=await Promise.all(
