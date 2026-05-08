@@ -16,15 +16,26 @@ export const getAllCustomers=async (req,res)=>{
         {$match:match}, // first pipeline
         {$lookup:{
             from:"orders", // kaha se data lana hai, orders collection se lana hai
-            localField:"_id", // current collection me jodega User._id
-            foreignField:"user", // doosri collection jo orders di hai uska Order me convert karke Order.user ko check karega
+            // localField:"_id", // current collection me jodega User._id
+            // foreignField:"user", // doosri collection jo orders di hai uska Order me convert karke Order.user ko check karega
+            let:{userid:"$_id"},
+            pipeline:[
+             {
+                $match:{
+                    status:"paid",
+                    $expr:{
+                        $eq:["$user","$$userid"] // order.user==user._id
+                    }
+                }
+             }
+            ],
             as:"userOrders" //is field ke name se add karega jab bhi User._id==Order.user ke
         }},
         {
             $addFields:{
                 totalOrders:{$size:"$userOrders"}, // $ use hota hai field access karne ke liye
                 totalSpent:{$sum:"$userOrders.amount"},
-                lastActivity:{$max:"$userOrders.createdAt"},
+                lastActivity:{$max:"$userOrders.createdAt"}, // maximum nikalne ka mtlb bo order choose karo jiski date sabse badi ho i.e latest date bale order ko choose karo
                 status:{
                     $cond:[
                         {$eq:["$isVerified",true]}, // $ lagate hai ham field accesss karne ke liye
@@ -34,11 +45,23 @@ export const getAllCustomers=async (req,res)=>{
                 }
             }
         },
+        {
+            $addFields:{
+                avgOrder:{
+                    $cond:[
+                        {$gt:["$totalOrders",0]},
+                        {$divide:["$totalSpent","$totalOrders"]},
+                        0 // agar totalOrders 0 hue to 0 kar dega avgOrder ki value
+                    ]
+                }
+            }
+        },
          // 4️⃣ Handle users with no orders
          {
             $addFields:{
                 totalSpent:{$ifNull:["$totalSpent",0]},
-                lastActivity:{$ifNull:["$lastActivity","$createdAt"]}
+                lastActivity:{$ifNull:["$lastActivity","$createdAt"]},
+                avgOrder:{$ifNull:["$avgOrder",0]}
             }
          },
          {
