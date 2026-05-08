@@ -59,7 +59,7 @@ export const getAllCustomers=async (req,res)=>{
          }
 
     ])
-    const totalcustomers=await User.countDocuments({role:"user"})
+    const totalcustomers=await User.countDocuments(match) // match khud ek object hai 
     const totalActive=await User.countDocuments({role:"user",isVerified:true});
     const now = new Date();
 
@@ -75,8 +75,18 @@ const avgOrder=await User.aggregate([
     {
         $lookup:{
             from:"orders",
-            localField:"_id",
-            foreignField:"user",
+            let:{userid:"$_id"}, // let variable declare karne ke liye use hota hai, userid ek variable hai, $_id kah raha hai ki current user ki _id ko lelo
+           // kyoki mujhe additional filtering chahiye to uske liye orders collection ke andar aggregation use karunga
+           pipeline:[ // nested aggregation ke liye pipeline likhna padta hai tabhi additional filtering kar skte ho
+            {
+                $match:{
+                    status:"paid",
+                    $expr:{
+                        $eq:["$user","$$userid"] // order.user==user._id
+                    }
+                }
+            }
+           ],
             as:"userOrders"
         }
     },
