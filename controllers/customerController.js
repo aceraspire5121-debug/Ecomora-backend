@@ -60,7 +60,7 @@ export const getAllCustomers=async (req,res)=>{
          {
             $addFields:{
                 totalSpent:{$ifNull:["$totalSpent",0]},
-                lastActivity:{$ifNull:["$lastActivity","$createdAt"]},
+                lastActivity:{$ifNull:["$lastActivity","$createdAt"]}, // agar koi order nhi hai to lastActivity ko user.createdAt kardo
                 avgOrder:{$ifNull:["$avgOrder",0]}
             }
          },
