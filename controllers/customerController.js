@@ -1,4 +1,36 @@
+import mongoose from "mongoose"
 import { User } from "../models/userModel.js"
+
+export const getSinglecustomer= async (req,res)=>{
+
+    try {
+        const id=req.params.userid
+        const [user]=await User.aggregate([ // aggregate array return karti hai
+// destructuring se array ka first element user variable me aa gaya
+// ab user[0] likhne ki zaroorat nahi
+            {
+                $match:{
+                    _id:new mongoose.Types.ObjectId(id) //jab mai match use kar raha hu to User collection me har ek document par match kar raaha hu jaha bhi _id match kar jayega meri id se bo mera document hoga isliye _id likhenge
+                }
+            },
+            {
+                $lookup:{    //maine jo user document dhunda hai ab us user document ka use karke mai orders dhund raha hu isliye matching condition hogi orders ki jaha par localfield meri user document ki _id hogi aur foreignfield order ka order.user bala mtlb user hoga jab bhi _id aur order.user match karega mujhe order mila
+                    from:"orders",
+                    localField:"_id", // jo user object mujhe mila hai uski field _id se match hona chahiye order.user
+                    foreignField:"user",
+                    pipeline:[
+                       { $sort:{createdAt:-1}}
+                    ],
+                    as:"userorders"
+                }
+            }
+        ])
+        res.status(200).json({success:true,user})
+    } catch (error) {
+        res.status(500).json({success:false,error:error.message})
+    }
+
+}
 
 export const getAllCustomers=async (req,res)=>{
   try {
