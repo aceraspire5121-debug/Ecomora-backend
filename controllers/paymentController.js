@@ -142,11 +142,15 @@ if (!order) {
 
 export const getOrder=async (req,res)=>{
    try {
-    const orderid=req.params.id;
+    const orderId=req.params.id;
     const userid=req.user.id;
-    const order=await Order.findOne({_id:orderid,user:userid})
+    const order=await Order.findOne({_id:orderId})
     if(!order)
         return res.status(400).json({success:false,message:"Order does not exist"})
+
+ if(req.user.role!=="admin" && order.user.toString()!==userid)
+  return res.status(401).json({success:false,message:"Unauthorized access"})
+
     res.status(200).json({success:true,message:"Order found",order})
    } catch (error) {
     return res.status(500).json({success:false,message:error.message})
