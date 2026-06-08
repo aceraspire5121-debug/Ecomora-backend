@@ -1,10 +1,23 @@
 import mongoose from "mongoose"
 import { User } from "../models/userModel.js"
+import { Order } from "../models/orderModel.js";
 
 export const getSinglecustomer= async (req,res)=>{
 
     try {
         const id=req.params.userid
+         const page=parseInt(req.query.page)||1;
+    const limit=parseInt(req.query.limit)||5;
+    const filter=req.query.filter;
+
+    const skip=(page-1)*limit;
+
+    const query={user:id}
+   if(filter!=="all")
+    query.status=filter
+
+    const totalDocuments=await Order.countDocuments(query)
+
         const [user]=await User.aggregate([ // aggregate array return karti hai
 // destructuring se array ka first element user variable me aa gaya
 // ab user[0] likhne ki zaroorat nahi
@@ -18,14 +31,34 @@ export const getSinglecustomer= async (req,res)=>{
                     from:"orders",
                     localField:"_id", // jo user object mujhe mila hai uski field _id se match hona chahiye order.user
                     foreignField:"user",
+
+
+                   // lookup pehle orders collection me un documents ko dhundta hai
+// jahan order.user == current user ki _id ho.
+// Is matching ke baad jo orders milte hain un par pipeline apply hoti hai.
+//
+// Pipeline flow:
+// 1. match  -> sirf wahi orders rakho jinka status filter ke equal ho.
+// 2. sort   -> remaining orders ko createdAt ke basis par newest first sort karo.
+// 3. skip   -> pagination ke liye initial documents skip karo.
+// 4. limit  -> required number of documents hi return karo.
+//
+// Conceptually pipeline matched orders par chalti hai aur har stage
+// previous stage ke output documents par kaam karti hai.
+
                     pipeline:[
-                       { $sort:{createdAt:-1}}
+                        {
+                            $match:filter!=="all"?{status:filter}:{}
+                        },
+                       { $sort:{createdAt:-1}},
+                       {$skip:skip},
+                       {$limit:limit}
                     ],
                     as:"userorders"
                 }
             }
         ])
-        res.status(200).json({success:true,user})
+        res.status(200).json({success:true,user,totalDocuments})
     } catch (error) {
         res.status(500).json({success:false,error:error.message})
     }
