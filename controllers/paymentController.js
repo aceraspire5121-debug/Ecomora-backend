@@ -161,11 +161,20 @@ export const getOrder=async (req,res)=>{
 
 export const getAllOrder=async (req,res)=>{
    try {
-    const userid=req.user.id;
-    const order=await Order.find({user:userid}) // find returns an array
+    const page=parseInt(req.query.page)||1;
+    const limit=parseInt(req.query.limit)||5;
+    const filter=req.query.filter;
+     const userid=req.user.id;
+    const query={user:userid}
+   if(filter!=="all")
+    query.status=filter
+
+    const skip=(page-1)*limit;
+    const order=await Order.find(query).sort({createdAt:-1}).skip(skip).limit(limit) // find returns an array
+    const totalorders=await Order.countDocuments(query)
     if(order.length===0)
         return res.status(400).json({success:false,message:"Order does not exist"})
-    res.status(200).json({success:true,message:"Order found",order})
+    res.status(200).json({success:true,message:"Order found",order,totalorders})
    } catch (error) {
     return res.status(500).json({success:false,message:error.message})
    }
