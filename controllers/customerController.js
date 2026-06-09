@@ -6,6 +6,7 @@ export const getSinglecustomer= async (req,res)=>{
 
     try {
         const id=req.params.userid
+        const objectId = new mongoose.Types.ObjectId(id);// we will convert the string id into objectId to compare it with the user section of order document
          const page=parseInt(req.query.page)||1;
     const limit=parseInt(req.query.limit)||5;
     const filter=req.query.filter;
@@ -17,6 +18,42 @@ export const getSinglecustomer= async (req,res)=>{
     query.status=filter
 
     const totalDocuments=await Order.countDocuments(query)
+
+     const [stats]=await Order.aggregate([
+      {
+        $match:{user:objectId} // it will find all the orders of the user
+      },
+    
+    //   $group is used when you want to aggregate documents into summary values such as:
+    // count
+    // sum
+    // average
+      {
+    $group:{
+      _id:null,
+      totalorders:{$sum:1},//for every document in the group add 1 so in this way sum is equal to total documents
+      paidorders:{
+        $sum:{
+          $cond:[
+            {$eq:["$status","paid"]},
+            1,
+            0
+          ]
+        }
+      },
+      pendingorders:{
+        $sum:{
+          $cond:[
+            {$eq:["$status","pending"]},
+            1,
+            0
+          ]
+        }
+      },
+      totalspent:{$sum:"$amount"}
+    }
+      }
+     ])
 
         const [user]=await User.aggregate([ // aggregate array return karti hai
 // destructuring se array ka first element user variable me aa gaya
@@ -58,7 +95,7 @@ export const getSinglecustomer= async (req,res)=>{
                 }
             }
         ])
-        res.status(200).json({success:true,user,totalDocuments})
+        res.status(200).json({success:true,user,totalDocuments,stats})
     } catch (error) {
         res.status(500).json({success:false,error:error.message})
     }

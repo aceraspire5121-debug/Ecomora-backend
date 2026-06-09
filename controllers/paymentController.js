@@ -3,6 +3,7 @@ import Razorpay from "razorpay"
 import { Product } from "../models/productModel.js";
 import { Order } from "../models/orderModel.js";
 import crypto from "crypto";
+import mongoose from "mongoose";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -164,17 +165,51 @@ export const getAllOrder=async (req,res)=>{
     const page=parseInt(req.query.page)||1;
     const limit=parseInt(req.query.limit)||5;
     const filter=req.query.filter;
-     const userid=req.user.id;
+     const userid=new mongoose.Types.ObjectId(req.user.id);
     const query={user:userid}
    if(filter!=="all")
     query.status=filter
+ const [stats]=await Order.aggregate([
+  {
+    $match:{user:userid} // it will find all the orders of the user
+  },
 
+//   $group is used when you want to aggregate documents into summary values such as:
+// count
+// sum
+// average
+  {
+$group:{
+  _id:null,
+  totalorders:{$sum:1},//for every document in the group add 1 so in this way sum is equal to total documents
+  paidorders:{
+    $sum:{
+      $cond:[
+        {$eq:["$status","paid"]},
+        1,
+        0
+      ]
+    }
+  },
+  pendingorders:{
+    $sum:{
+      $cond:[
+        {$eq:["$status","pending"]},
+        1,
+        0
+      ]
+    }
+  },
+  totalspent:{$sum:"$amount"}
+}
+  }
+ ])
     const skip=(page-1)*limit;
     const order=await Order.find(query).sort({createdAt:-1}).skip(skip).limit(limit) // find returns an array
     const totalorders=await Order.countDocuments(query)
     if(order.length===0)
         return res.status(400).json({success:false,message:"Order does not exist"})
-    res.status(200).json({success:true,message:"Order found",order,totalorders})
+    res.status(200).json({success:true,message:"Order found",order,totalorders,stats})
    } catch (error) {
     return res.status(500).json({success:false,message:error.message})
    }
