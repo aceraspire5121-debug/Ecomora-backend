@@ -1,20 +1,26 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    const msg = {
+    const info = await transporter.sendMail({
+      from: `"Ecomora" <${process.env.EMAIL_USER}>`,
       to,
-      from: process.env.EMAIL_USER,
       subject,
       html,
-    };
+    });
 
-    await sgMail.send(msg);
-    console.log("Email sent");
+    console.log("Email sent:", info.messageId);
   } catch (error) {
-    console.log("Email error:", error.message);
+    console.log("Email error:", error);
+    throw error;
   }
 };
 
