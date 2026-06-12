@@ -4,6 +4,7 @@ import jwt  from "jsonwebtoken";
 import { User } from "../models/userModel.js";
 import { generateEmailToken } from "../utils/generateToken.js";
 import sendEmail from "../utils/sendEmail.js";
+import mongoose from "mongoose";
 export const registerUser=async (req,res)=>{
     try{
  const {name,email,phoneNumber,password}=req.body;
@@ -346,3 +347,31 @@ export const updatePassword = async (req, res) => {
     });
   }
 };
+
+export const getSingleUser= async (req,res)=>{
+try {
+  const [data] = await User.aggregate([
+    {
+      $match:{_id:new mongoose.Types.ObjectId(req.user.id)}
+    },
+    {
+      $lookup:{
+        from:"orders",
+        localField:"_id",
+        foreignField:"user",
+        as:"orders"
+      }
+    },
+    {
+      $addFields:{
+        totalorder:{$size:"$orders"}
+      }
+    }
+  ])
+  if(!data)
+    return res.status(404).json({success:false,message:"User not found"})
+  res.json({success:true,data})
+} catch (error) {
+  res.status(500).json({success:false,message:error.message})
+}
+}
