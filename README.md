@@ -2,7 +2,8 @@
 
 REST API for **Ecomora**, an e-commerce platform. Built with Node.js + Express + MongoDB, handling auth, products, cart, orders/payments (Razorpay), and email flows.
 
-> Frontend repo: [Ecomora-frontend](https://github.com/aceraspire5121-debug/Ecomora-frontend)
+🔗 **Live Frontend:** https://comora-frontend.vercel.app
+📦 **Frontend Repo:** [Ecomora-frontend](https://github.com/aceraspire5121-debug/Ecomora-frontend)
 
 ## ✨ Features
 
