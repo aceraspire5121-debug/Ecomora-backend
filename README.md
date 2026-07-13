@@ -131,4 +131,19 @@ Server runs at `http://localhost:3000` (or your configured `PORT`).
 | GET | `/getAllCustomers` | ✅ Admin | List all customers |
 | GET | `/:userid` | – | Get single customer |
 
-## 📁 Project Structure
+## 📂 Project Structure
+
+```text
+backend/
+├── config/          # Database & application configuration
+├── controllers/     # Business logic
+├── middleware/      # Authentication & authorization middleware
+├── models/          # Mongoose models
+├── routes/          # API routes
+├── utils/           # Helper functions & utilities
+├── .env             # Environment variables
+├── .gitignore
+├── package.json
+├── package-lock.json
+└── server.js        # Application entry point
+```
