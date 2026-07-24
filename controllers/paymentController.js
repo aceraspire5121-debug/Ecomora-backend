@@ -2,6 +2,7 @@ import { Cart } from "../models/CartModel.js";
 import Razorpay from "razorpay"
 import { Product } from "../models/productModel.js";
 import { Order } from "../models/orderModel.js";
+import { User } from "../models/userModel.js";
 import crypto from "crypto";
 import mongoose from "mongoose";
 
@@ -110,6 +111,7 @@ if (!order) {
   });
 }
 
+
           // 🔐 User match check 
     if (order.user.toString() !== id) { // validation that the order userid and the token userid same hai agar hai to sahi user hai barna unauthorised userhai
       return res.status(403).json({
@@ -122,6 +124,28 @@ if (!order) {
       order.paymentId=razorpay_payment_id;
       order.paidAt=new Date()
       await order.save()
+
+//      const user = await User.findById(id).select("name email");
+
+//       try {
+//   await fetch(process.env.N8N_ORDER_WEBHOOK_URL, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       orderId: order._id,
+//      customerName: user.name,
+//     customerEmail: user.email,
+
+//       amount: order.amount,
+//       status: order.status,
+//       paidAt: order.paidAt,
+//     }),
+//   });
+// } catch (error) {
+//   console.log("n8n automation failed:", error.message);
+// }
 
       await Cart.findOneAndUpdate({user:id},{$set:{items:[]}})
 
